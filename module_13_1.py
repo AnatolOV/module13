@@ -1,5 +1,4 @@
 import asyncio
-import time
 
 async def start_strongman(name, power):
     print(f'Силач {name} начал соревнования.')
