@@ -3,15 +3,19 @@ from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import asyncio
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-api = '7701580394:AAHk'
+api = '7701580394:AA'
 bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
 kb = ReplyKeyboardMarkup(resize_keyboard=True)
 button1 = KeyboardButton(text='Рассчитать')
 button2 = KeyboardButton(text='Информация')
 kb.add(button1, button2)
+kbInline = InlineKeyboardMarkup()
+buttonInlKalories = InlineKeyboardButton(text='Рассчитать норму калорий', callback_data='calories')
+buttonInlFormula = InlineKeyboardButton(text='Формулы расчёта', callback_data='formulas')
+kbInline.add(buttonInlKalories, buttonInlFormula)
 
 
 class UserState(StatesGroup):
@@ -26,10 +30,29 @@ async def start(message):
     await message.answer('Привет! Я помогу тебе рассчитать ежедневную норму калорий'
                          , reply_markup=kb)
 
+
 @dp.message_handler(text='Рассчитать')
-async def set_sex(message):
-    await message.answer('Введите свой пол: Муж или Жен')
+async def main_menu(message):
+    await message.answer(text='Выберите опцию:', reply_markup = kbInline)
+
+@dp.callback_query_handler(text='formulas')
+async def get_formulas(call):
+    await call.message.answer("Калории рассчитываются по формулам Миффлина-Сан Жеора.")
+    await call.answer()
+
+
+
+# @dp.message_handler(text='Рассчитать')
+@dp.callback_query_handler(text='calories')
+async def set_sex(call):
+    await call.message.answer('Введите свой пол: Муж или Жен')
     await UserState.sex.set()
+
+@dp.message_handler(text='Информация')
+async def inform(message):
+    await message.answer('Я бот, который поможет тебе определить норму потребления '
+                         'калорий, нажми "Рассчитать"')
+
 
 @dp.message_handler(state=UserState.sex)
 async def set_age(message, state):
@@ -39,6 +62,7 @@ async def set_age(message, state):
 
 
 @dp.message_handler(state=UserState.age)
+
 async def set_growth(message, state):
     await state.update_data(age=message.text)
     await message.answer('Введите свой рост:')
