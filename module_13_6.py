@@ -5,7 +5,7 @@ from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton, InlineKeyboardMarkup, InlineKeyboardButton
 
-api = '7701580394:AA'
+api = ''
 bot = Bot(token=api)
 dp = Dispatcher(bot, storage=MemoryStorage())
 kb = ReplyKeyboardMarkup(resize_keyboard=True)
@@ -47,6 +47,7 @@ async def get_formulas(call):
 async def set_sex(call):
     await call.message.answer('Введите свой пол: Муж или Жен')
     await UserState.sex.set()
+    await call.answer()
 
 @dp.message_handler(text='Информация')
 async def inform(message):
